@@ -2,12 +2,19 @@ use std::num::NonZero;
 
 pub mod card;
 
-use iced::{Color, widget::{Column, button, button::Style as ButtonStyle, column, container, row, text}};
+use iced::{Font, Color, widget::{Column, button, button::Style as ButtonStyle, column, container, row, text}};
 
 use card::{Card, DEFAULT_BOARD, Face};
 
 const ONE: NonZero<usize> = unsafe { NonZero::new_unchecked(1) };
-const PADDING: f32 = 4.0; 
+const PADDING: f32 = 4.0;
+
+pub const FONT: Font = Font {
+    family: iced::font::Family::Name("Noto Serif"),
+    weight: iced::font::Weight::Normal,
+    stretch: iced::font::Stretch::Normal,
+    style: iced::font::Style::Normal,
+};
 
 pub struct Solitaire {
     board: [[Option<Card>; 13]; 4],
