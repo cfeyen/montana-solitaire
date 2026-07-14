@@ -1,0 +1,13 @@
+[package]
+name = "montana-solitaire"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+iced = "0.14.0"
+fastrand = "2.4.1"
+wasm-bindgen = "0.2.100"
+console_error_panic_hook = "0.1.7"
