@@ -8,6 +8,7 @@ use card::{Card, DEFAULT_BOARD, Face};
 
 const ONE: NonZero<usize> = unsafe { NonZero::new_unchecked(1) };
 const PADDING: f32 = 4.0;
+const FONT_SIZE: f32 = 50.0;
 
 pub const FONT: Font = Font {
     family: iced::font::Family::Name("Noto Serif"),
@@ -15,6 +16,14 @@ pub const FONT: Font = Font {
     stretch: iced::font::Stretch::Normal,
     style: iced::font::Style::Normal,
 };
+
+pub fn start() -> iced::Result {
+    iced::application(Solitaire::default, Solitaire::update, Solitaire::view)
+        .font(include_bytes!("../../assets/NotoSerif-VariableFont_wdth,wght.ttf"))
+        .default_font(FONT)
+        .style(|_, _| iced::theme::Style { background_color: Color::BLACK, text_color: Color::BLACK })
+        .run()
+}
 
 pub struct Solitaire {
     board: [[Option<Card>; 13]; 4],
@@ -164,12 +173,12 @@ impl Solitaire {
     pub fn view(&self) -> Column<'_, Message> {
         column![
             row![
-                container(button("Reset").on_press(Message::Reset)).padding(PADDING).center_x(iced::Fill),
-                container(text(format!("Rounds: {}", self.rounds))).padding(PADDING).center_x(iced::Fill),
-                container(text(format!("Moves: {}", self.moves))).padding(PADDING).center_x(iced::Fill),
-                container(text(format!("Undos: {}", self.undos))).padding(PADDING).center_x(iced::Fill),
-                container(button("Reshuffle").on_press(Message::Reshuffle)).padding(PADDING).center_x(iced::Fill),
-                container(button("Undo").on_press(Message::Undo)).padding(PADDING).center_x(iced::Fill),
+                container(button(text("Reset").size(FONT_SIZE)).on_press(Message::Reset)).padding(PADDING).center_x(iced::Fill),
+                container(text(format!("Rounds: {}", self.rounds)).size(FONT_SIZE).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
+                container(text(format!("Moves: {}", self.moves)).size(FONT_SIZE).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
+                container(text(format!("Undos: {}", self.undos)).size(FONT_SIZE).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
+                container(button(text("Reshuffle").size(FONT_SIZE)).on_press(Message::Reshuffle)).padding(PADDING).center_x(iced::Fill),
+                container(button(text("Undo").size(FONT_SIZE)).on_press(Message::Undo)).padding(PADDING).center_x(iced::Fill),
             ],
             self.board()
         ]
@@ -189,7 +198,7 @@ impl Solitaire {
             row(r.iter().enumerate().map(|(col_num, c)| {
                 container(
                     button(
-                        container(text(c.as_ref().map_or("", |c| c.face.as_str())))
+                        container(text(c.as_ref().map_or("", |c| c.face.as_str())).size(FONT_SIZE))
                             .width(self.scale)
                             .height(self.scale * 1.4)
                             .center(iced::Fill)
