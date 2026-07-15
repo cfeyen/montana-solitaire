@@ -2,13 +2,14 @@ use std::num::NonZero;
 
 pub mod card;
 
-use iced::{Font, Color, widget::{Column, button, button::Style as ButtonStyle, column, container, row, text}};
+use iced::{Color, Font, widget::{Column, button, button::Style as ButtonStyle, column, container, row, text}};
 
 use card::{Card, DEFAULT_BOARD, Face};
 
 const ONE: NonZero<usize> = unsafe { NonZero::new_unchecked(1) };
 const PADDING: f32 = 4.0;
 const FONT_SIZE: f32 = 50.0;
+const SCALE_DIFF: f32 = 4.0;
 
 pub const FONT: Font = Font {
     family: iced::font::Family::Name("Noto Serif"),
@@ -33,6 +34,7 @@ pub struct Solitaire {
     undos: usize,
     two_row: Option<usize>,
     scale: f32,
+    padding: f32,
 }
 
 impl Default for Solitaire {
@@ -45,6 +47,7 @@ impl Default for Solitaire {
             undos: 0,
             two_row: None,
             scale: 1.0,
+            padding: 0.0,
         };
 
         this.shuffle();
@@ -159,6 +162,11 @@ impl Solitaire {
             self.undos += 1;
         }
     }
+
+    fn font_size(&self) -> f32 {
+        (FONT_SIZE / (1.0 + self.padding / SCALE_DIFF / 15.0))  
+            .max(FONT_SIZE / 2.0)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -167,6 +175,8 @@ pub enum Message {
     Reshuffle,
     Reset,
     Undo,
+    ScaleUp,
+    ScaleDown,
 }
 
 impl Solitaire {
@@ -174,11 +184,19 @@ impl Solitaire {
         column![
             row![
                 container(button(text("Reset").size(FONT_SIZE)).on_press(Message::Reset)).padding(PADDING).center_x(iced::Fill),
-                container(text(format!("Rounds: {}", self.rounds)).size(FONT_SIZE).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
-                container(text(format!("Moves: {}", self.moves)).size(FONT_SIZE).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
-                container(text(format!("Undos: {}", self.undos)).size(FONT_SIZE).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
-                container(button(text("Reshuffle").size(FONT_SIZE)).on_press(Message::Reshuffle)).padding(PADDING).center_x(iced::Fill),
-                container(button(text("Undo").size(FONT_SIZE)).on_press(Message::Undo)).padding(PADDING).center_x(iced::Fill),
+                column![
+                    container(button(text("Reshuffle").size(FONT_SIZE / 2.0)).on_press(Message::Reshuffle)).padding(PADDING).center_x(iced::Fill),
+                    container(text(format!("Rounds: {}", self.rounds)).size(FONT_SIZE / 2.0).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
+                ],
+                column![
+                    container(text(format!("Moves: {}", self.moves)).size(FONT_SIZE / 2.0).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
+                    container(text(format!("Undos: {}", self.undos)).size(FONT_SIZE / 2.0).color(Color::WHITE)).padding(PADDING).center_x(iced::Fill),
+                ],
+                    container(button(text("Undo").size(FONT_SIZE)).on_press(Message::Undo)).padding(PADDING).center_x(iced::Fill),
+                column![
+                    button(container(text("^").size(FONT_SIZE / 2.0).color(Color::WHITE)).padding(PADDING / 2.0).center_x(iced::Fill)).on_press(Message::ScaleUp),
+                    button(container(text("v").size(FONT_SIZE / 2.0).color(Color::WHITE)).padding(PADDING / 2.0).center_x(iced::Fill)).on_press(Message::ScaleDown),
+                ],
             ],
             self.board()
         ]
@@ -190,6 +208,8 @@ impl Solitaire {
             Message::Reshuffle => self.reshuffle(),
             Message::SelectCard { row, col } => self.select(row, col),
             Message::Undo => self.undo(),
+            Message::ScaleDown => self.padding += SCALE_DIFF,
+            Message::ScaleUp => self.padding = if self.padding < SCALE_DIFF { 0.0 } else { self.padding - SCALE_DIFF },
         }
     }
 
@@ -198,7 +218,7 @@ impl Solitaire {
             row(r.iter().enumerate().map(|(col_num, c)| {
                 container(
                     button(
-                        container(text(c.as_ref().map_or("", |c| c.face.as_str())).size(FONT_SIZE))
+                        container(text(c.as_ref().map_or("", |c| c.face.as_str())).size(self.font_size()))
                             .width(self.scale)
                             .height(self.scale * 1.4)
                             .center(iced::Fill)
@@ -214,6 +234,7 @@ impl Solitaire {
                 .into()
             })).into()
         }))
+            .padding([self.padding, self.padding * 1.75])
     }
 }
 
