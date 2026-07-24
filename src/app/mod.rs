@@ -5,6 +5,7 @@ pub mod card;
 use iced::{Color, Font, widget::{Column, button, button::Style as ButtonStyle, column, container, row, text}};
 
 use card::{Card, DEFAULT_BOARD, Face};
+use rand::{rngs::ThreadRng, seq::SliceRandom};
 
 const ONE: NonZero<usize> = unsafe { NonZero::new_unchecked(1) };
 const PADDING: f32 = 4.0;
@@ -35,6 +36,7 @@ pub struct Solitaire {
     two_row: Option<usize>,
     scale: f32,
     padding: f32,
+    rng: ThreadRng,
 }
 
 impl Default for Solitaire {
@@ -48,6 +50,7 @@ impl Default for Solitaire {
             two_row: None,
             scale: 1.0,
             padding: 0.0,
+            rng: rand::rng(),
         };
 
         this.shuffle();
@@ -58,14 +61,12 @@ impl Default for Solitaire {
 
 impl Solitaire {
     fn shuffle(&mut self) {
-        let mut rng = fastrand::Rng::new();
-
         let mut cards = self.board.clone()
             .into_iter()
             .flatten()
             .collect::<Vec<_>>();
 
-        rng.shuffle(&mut cards);
+        cards.shuffle(&mut self.rng);
 
         for r in 0..4 {
             for c in 0..13 {
@@ -106,9 +107,7 @@ impl Solitaire {
             }
         }
 
-        let mut rng = fastrand::Rng::new();
-
-        rng.shuffle(&mut redistributable);
+        redistributable.shuffle(&mut self.rng);
 
         for r in 0..4 {
             for c in 0..13 {
