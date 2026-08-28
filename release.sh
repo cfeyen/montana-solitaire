@@ -14,8 +14,9 @@ if [[ $? -ne 0 ]]; then
 fi
 
 echo "Copying files"
-cp -r "icons" "$DEST"
-cp -r "pkg" "$DEST"
-rm -f "$DEST/pkg/.gitignore"
-cp index.html "$DEST"
-cp main.css "$DEST"
+mkdir "$DEST/montana-solitaire"
+cp -r "icons" "$DEST/montana-solitaire/icons"
+cp -r "pkg" "$DEST/montana-solitaire/pkg"
+rm -f "$DEST/montana-solitaire/pkg/.gitignore"
+cp index.html "$DEST/montana-solitaire"
+cp main.css "$DEST/montana-solitaire"
