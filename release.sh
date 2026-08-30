@@ -14,6 +14,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 echo "Copying files"
+rm -rf "$DEST/montana-solitaire"
 mkdir "$DEST/montana-solitaire"
 cp -r "icons" "$DEST/montana-solitaire/icons"
 cp -r "pkg" "$DEST/montana-solitaire/pkg"
